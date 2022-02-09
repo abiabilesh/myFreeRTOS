@@ -177,7 +177,7 @@ typedef enum
  *
  * \ingroup TaskUtils
  */
-#define tskIDLE_PRIORITY    ( ( UBaseType_t ) 3U )
+#define tskIDLE_PRIORITY    ( ( UBaseType_t ) 0U )
 
 /**
  * task. h
