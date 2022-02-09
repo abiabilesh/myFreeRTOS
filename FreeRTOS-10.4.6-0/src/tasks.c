@@ -29,7 +29,6 @@
 /* Standard includes. */
 #include <stdlib.h>
 #include <string.h>
-#include <stdlib.h>
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
  * all the API functions to use the MPU wrappers.  That should only be done when
@@ -126,7 +125,7 @@
  * state task. */
     #define taskRECORD_READY_PRIORITY( uxPriority ) \
     {                                               \
-        if( ( uxPriority ) < uxTopReadyPriority )   \
+        if( ( uxPriority ) > uxTopReadyPriority )   \
         {                                           \
             uxTopReadyPriority = ( uxPriority );    \
         }                                           \
@@ -142,7 +141,7 @@
         while( listLIST_IS_EMPTY( &( pxReadyTasksLists[ uxTopPriority ] ) ) ) \
         {                                                                     \
             configASSERT( uxTopPriority );                                    \
-            ++uxTopPriority;                                                  \
+            --uxTopPriority;                                                  \
         }                                                                     \
                                                                               \
         /* listGET_OWNER_OF_NEXT_ENTRY indexes through the list, so the tasks of \
@@ -1098,7 +1097,7 @@ static void prvAddNewTaskToReadyList( TCB_t * pxNewTCB )
              * so far. */
             if( xSchedulerRunning == pdFALSE )
             {
-                if( pxCurrentTCB->uxPriority > pxNewTCB->uxPriority )
+                if( pxCurrentTCB->uxPriority <= pxNewTCB->uxPriority )
                 {
                     pxCurrentTCB = pxNewTCB;
                 }
@@ -1133,7 +1132,7 @@ static void prvAddNewTaskToReadyList( TCB_t * pxNewTCB )
     {
         /* If the created task is of a higher priority than the current task
          * then it should run now. */
-        if( pxCurrentTCB->uxPriority >= pxNewTCB->uxPriority )
+        if( pxCurrentTCB->uxPriority < pxNewTCB->uxPriority )
         {
             taskYIELD_IF_USING_PREEMPTION();
         }
@@ -2029,7 +2028,7 @@ void vTaskStartScheduler( void )
                                    configIDLE_TASK_NAME,
                                    configMINIMAL_STACK_SIZE,
                                    ( void * ) NULL,
-                                   (portPRIVILEGE_BIT | tskIDLE_PRIORITY),  /* In effect ( tskIDLE_PRIORITY | portPRIVILEGE_BIT ), but tskIDLE_PRIORITY is zero. */
+                                   portPRIVILEGE_BIT,  /* In effect ( tskIDLE_PRIORITY | portPRIVILEGE_BIT ), but tskIDLE_PRIORITY is zero. */
                                    &xIdleTaskHandle ); /*lint !e961 MISRA exception, justified as it is not a redundant explicit cast to all supported compilers. */
         }
     #endif /* configSUPPORT_STATIC_ALLOCATION */
